@@ -22,10 +22,22 @@ class DataProcessor(ABC):
 
 class NumericProcessor(DataProcessor):
     """A class for Numeric processor."""
+    sum_data: int = 0
+    avg_data: Optional[float] = None
 
     def process(self, data: Any) -> str:
         """process the data that given as a list."""
         if self.validate(data) is True:
+            NumericProcessor.sum_data += sum(data)
+            if NumericProcessor.avg_data is None:
+                NumericProcessor.avg_data = sum(data) / len(data)
+            else:
+                NumericProcessor.avg_data = (
+                    (
+                        NumericProcessor.avg_data
+                        + (sum(data)) / len(data)
+                    ) / 2
+                    )
             return (f"Processed {len(data)} numeric values, sum={sum(data)},"
                     + f"vg={sum(data) / len(data)}")
         else:
@@ -48,6 +60,10 @@ class NumericProcessor(DataProcessor):
             return False
         else:
             return True
+
+    @classmethod
+    def get_data(cls) -> Dict[str, Union[int, float]]:
+        return {"total sum": cls.sum_data, "total avg": cls.avg_data}
 
 
 class TextProcessor(DataProcessor):
@@ -93,7 +109,8 @@ class LogProcessor(DataProcessor):
     def validate(self, data: Any) -> bool:
         try:
             if (isinstance(data, str) is False):
-                raise Exception(f"Error data is not a log_str, data type -> \{type(data)}")
+                raise Exception("Error data is not a log_str, data type "
+                                + f"-> {type(data)}")
             if (len(data) == 0):
                 raise Exception("Error data is empty")
             if (len(data.split(":")) == 0):
@@ -113,7 +130,7 @@ if __name__ == "__main__":
 
     print("Initializing Numeric Processor...")
     numeric_processor = NumericProcessor()
-    data = [1, 2, 3, 4, 5]
+    data: List[int] = [n for n in range(1, 6)]
     print("Processing data:", data)
     string = numeric_processor.process(data)
     if numeric_processor.validate(data) is True:
@@ -137,7 +154,7 @@ if __name__ == "__main__":
     if log_processor.validate(data) is True:
         print("Validation: log entry verified")
     print(log_processor.format_output(string))
-    
+
     print("\n=== Polymorphic Processing Demo ===")
     print("Processing multiple data types through same interface...")
 
