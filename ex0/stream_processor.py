@@ -62,7 +62,7 @@ class NumericProcessor(DataProcessor):
             return True
 
     @classmethod
-    def get_data(cls) -> Dict[str, Union[int, float]]:
+    def get_data(cls: 'NumericProcessor') -> Dict[str, Union[int, float]]:
         return {"total sum": cls.sum_data, "total avg": cls.avg_data}
 
 
